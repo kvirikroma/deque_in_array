@@ -4,7 +4,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define DEQUE_DEFAULT_INIT_SIZE 16
+#define DEQUE_DEFAULT_INIT_SIZE 16  // items
+#define MAXIMUM_FREE_SPACE_PERCENT 75
+#define MINIMAL_SPACE DEQUE_DEFAULT_INIT_SIZE
 
 
 // This structure uses an Opizdulation principle.
@@ -15,8 +17,8 @@ typedef struct
     void** storage;
     void** first_item;
     void** last_item;
-    uint32_t storage_size;
-    bool dynamic_storage;
+    uint32_t storage_size;  // items
+    bool storage_is_dynamic;
 }
 deque;
 
@@ -33,12 +35,12 @@ void deque_delete(deque* self);
 /// Push the void* value to the left of the deque.
 /// @param item - value to push.
 /// @returns true if the operation is successful
-bool deque_push_left(deque* self, void* item);
+bool deque_push_left(deque* self, void* value);
 
 /// Push the void* value to the right of the deque.
 /// @param item - value to push.
 /// @returns true if the operation is successful
-bool deque_push_right(deque* self, void* item);
+bool deque_push_right(deque* self, void* value);
 
 /// Pop the void* value from the left of the deque.
 /// @returns value that have been popped.
@@ -62,16 +64,16 @@ bool deque_can_push(deque* self);
 
 /// Checks if the value can be popped from the deque.
 /// @returns true if value can be popped.
-bool deque_can_pop(deque* self);
+bool deque_can_pop(const deque* self);
 
 /// @returns count of items in the deque
-uint32_t deque_get_count(deque* self);
+uint32_t deque_get_count(const deque* self);
 
 /// @returns real size of storage
-uint32_t deque_get_storage_size(deque* self);
+uint32_t deque_get_storage_size(const deque* self);
 
 /// @returns true if the internal storage was allocated in heap
-bool deque_can_realloc(deque* self);
+bool deque_can_realloc(const deque* self);
 
 /// Applies the @param item_receiver function to each item in the deque.
 /// @param params is needed to pass some additional parameters to the @param item_receiver.

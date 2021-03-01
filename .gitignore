@@ -1,0 +1,4 @@
+deque
+*.o
+.vscode
+.kdbg*

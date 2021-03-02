@@ -52,11 +52,11 @@ void* deque_pop_right(deque* self);
 
 /// Get the item from deque by index
 /// Returns 0 if the index is not present in the deque
-void* deque_get_by_index(deque* self, uint32_t index);
+void* deque_get_by_index(deque* self, int32_t index);
 
 /// Change the item in deque by its index
 /// @returns true if the operation is successful
-bool deque_set_by_index(deque* self, uint32_t index, void* value);
+void deque_set_by_index(deque* self, int32_t index, void* value);
 
 /// Checks if the value can be pushed into the deque.
 /// @returns true if value can be pushed.
@@ -78,6 +78,9 @@ bool deque_can_realloc(const deque* self);
 /// Applies the @param item_receiver function to each item in the deque.
 /// @param params is needed to pass some additional parameters to the @param item_receiver.
 void deque_iterate(deque* self, void(*item_receiver)(void* item, void* params), void* params);
+
+/// Clears the deque (in O(1))
+void deque_clear(deque* self);
 
 
 #endif

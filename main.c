@@ -7,28 +7,21 @@
 
 int main()
 {
-    void* storage[16];
     deque data;
-    deque_init(&data, storage, sizeof(storage) / sizeof(void*));
+    deque_init(&data, NULL, 0);
     for (int i = 0; i < 28; i++)
     {
-        printf("%d\n", deque_push_left(&data, (void*)(uint64_t)i));
+        deque_push_right(&data, (void*)(uint64_t)i);
     }
-    for (int i = 0; i < 8; i++)
+    deque_set_by_index(&data, -234233, (void*)987765);
+    for (int i = 0; i < deque_get_count(&data); i++)
     {
-        printf("%d\n", (int)(uint64_t)deque_pop_left(&data));
-        fflush(stdout);
+        printf("%d\n", (int)(uint64_t)deque_get_by_index(&data, i));
     }
     for (int i = 0; i < 28; i++)
     {
-        printf("%d\n", deque_push_right(&data, (void*)(uint64_t)i));
+        deque_pop_right(&data);
     }
-    for (int i = 0; i < 16; i++)
-    {
-        printf("%d\n", (int)(uint64_t)deque_pop_right(&data));
-        fflush(stdout);
-    }
-    printf("%d\n", deque_get_count(&data));
     deque_delete(&data);
     return 0;
 }

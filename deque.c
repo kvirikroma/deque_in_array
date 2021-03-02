@@ -23,7 +23,10 @@ static void** access_storage_by_address(deque* self, void** address)
 static void increase_storage_capacity(deque* self)
 {
     self->storage_size <<= 1;  // *= 2
+    void** old_storage_ptr = self->storage;
     self->storage = realloc(self->storage, self->storage_size * sizeof(void*));
+    self->first_item += self->storage - old_storage_ptr;
+    self->last_item += self->storage - old_storage_ptr;
     if (self->first_item > self->last_item)
     {
         uint32_t amount_to_move = (self->storage_size >> 1) - (self->first_item - self->storage);
@@ -80,7 +83,10 @@ static void shrink_storage(deque* self)
         }
     }
     self->storage_size >>= 1;  // /= 2
+    void** old_storage_ptr = self->storage;
     self->storage = realloc(self->storage, self->storage_size * sizeof(void*));
+    self->first_item += self->storage - old_storage_ptr;
+    self->last_item += self->storage - old_storage_ptr;
 }
 
 
@@ -200,23 +206,26 @@ void* deque_pop_right(deque* self)
     return result;
 }
 
-void* deque_get_by_index(deque* self, uint32_t index)
+void* deque_get_by_index(deque* self, int32_t index)
 {
-    if ((index + 1) > deque_get_count(self))
+    int32_t items_count = (int32_t)deque_get_count(self);
+    index %= items_count;
+    if (index < 0)
     {
-        return 0;
+        index += items_count;
     }
     return *access_storage_by_address(self, self->first_item + index);
 }
 
-bool deque_set_by_index(deque* self, uint32_t index, void* value)
+void deque_set_by_index(deque* self, int32_t index, void* value)
 {
-    if ((index + 1) > deque_get_count(self))
+    int32_t items_count = (int32_t)deque_get_count(self);
+    index %= items_count;
+    if (index < 0)
     {
-        return false;
+        index += items_count;
     }
     *access_storage_by_address(self, self->first_item + index) = value;
-    return true;
 }
 
 bool deque_can_push(deque* self)
@@ -272,7 +281,19 @@ void deque_iterate(deque* self, void(*item_receiver)(void* item, void* params), 
     do
     {
         current_item++;
-        item_receiver(access_storage_by_address(self, current_item), params);
+        item_receiver(*access_storage_by_address(self, current_item), params);
     }
     while (access_storage_by_address(self, current_item) != self->last_item);
+}
+
+void deque_clear(deque* self)
+{
+    self->first_item = 0;
+    self->last_item = 0;
+    if (self->storage_is_dynamic)
+    {
+        self->storage_size = DEQUE_DEFAULT_INIT_SIZE;
+        free(self->storage);
+        self->storage = malloc(DEQUE_DEFAULT_INIT_SIZE * sizeof(void*));
+    }
 }

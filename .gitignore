@@ -2,3 +2,4 @@ deque
 *.o
 .vscode
 .kdbg*
+vgcore.*

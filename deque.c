@@ -226,7 +226,7 @@ bool deque_pop_right(deque* self, deque_item* destination)
     return true;
 }
 
-bool deque_get_by_index(deque* self, int32_t index, deque_item* destination)
+deque_item* deque_item_ptr_by_index(deque* self, int32_t index)
 {
     int32_t items_count = (int32_t)deque_get_count(self);
     if (items_count == 0)
@@ -235,21 +235,7 @@ bool deque_get_by_index(deque* self, int32_t index, deque_item* destination)
     }
     index %= items_count;
     index += items_count * (index < 0);
-    memcpy(destination, access_storage_by_index(self, index), self->item_size);
-    return true;
-}
-
-bool deque_set_by_index(deque* self, int32_t index, deque_item* source)
-{
-    int32_t items_count = (int32_t)deque_get_count(self);
-    if (items_count == 0)
-    {
-        return false;
-    }
-    index %= items_count;
-    index += items_count * (index < 0);
-    memcpy(access_storage_by_index(self, index), source, self->item_size);
-    return true;
+    return access_storage_by_index(self, index);
 }
 
 bool deque_can_push(deque* self)

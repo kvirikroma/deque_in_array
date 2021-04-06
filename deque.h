@@ -67,13 +67,9 @@ bool deque_pop_left(deque* self, deque_item* destination);
 /// @returns true if the operation is successful
 bool deque_pop_right(deque* self, deque_item* destination);
 
-/// Get the item from deque by index and put to the destination
-/// @returns true if the operation is successful
-bool deque_get_by_index(deque* self, int32_t index, deque_item* destination);
-
-/// Change the item in deque by its index using the value from source
-/// @returns true if the operation is successful
-bool deque_set_by_index(deque* self, int32_t index, deque_item* source);
+/// Get the item pointer in deque by its index
+/// @returns pointer to deque item
+deque_item* deque_item_ptr_by_index(deque* self, int32_t index);
 
 /// Checks if some value can be pushed into the deque.
 /// @returns true if value can be pushed.

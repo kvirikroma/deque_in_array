@@ -226,16 +226,45 @@ bool deque_pop_right(deque* self, deque_item* destination)
     return true;
 }
 
-deque_item* deque_item_ptr_by_index(deque* self, int32_t index)
+static bool normalize_index(deque* self, int32_t* index)
 {
     int32_t items_count = (int32_t)deque_get_count(self);
     if (items_count == 0)
     {
         return false;
     }
-    index %= items_count;
-    index += items_count * (index < 0);
+    *index %= items_count;
+    *index += items_count * (index < 0);
+    return true;
+}
+
+bool deque_copy_by_index(deque* self, int32_t index, deque_item* destination)
+{
+    if (!normalize_index(self, &index))
+    {
+        return false;
+    }
+    memcpy(destination, access_storage_by_index(self, index), self->item_size);
+    return true;
+}
+
+deque_item* deque_get_by_index(deque* self, int32_t index)
+{
+    if (!normalize_index(self, &index))
+    {
+        return false;
+    }
     return access_storage_by_index(self, index);
+}
+
+bool deque_set_by_index(deque* self, int32_t index, deque_item* source)
+{
+    if (!normalize_index(self, &index))
+    {
+        return false;
+    }
+    memcpy(access_storage_by_index(self, index), source, self->item_size);
+    return true;
 }
 
 bool deque_can_push(deque* self)

@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define DEQUE_DEFAULT_INIT_SIZE 16  // items
+#define DEQUE_DEFAULT_INIT_SIZE 8  // items
 #define MAXIMUM_FREE_SPACE_PERCENT 75  // must be more than 50 and less than 100 (not equal!)
 #define MINIMAL_SPACE DEQUE_DEFAULT_INIT_SIZE
 
@@ -67,9 +67,17 @@ bool deque_pop_left(deque* self, deque_item* destination);
 /// @returns true if the operation is successful
 bool deque_pop_right(deque* self, deque_item* destination);
 
-/// Get the item pointer in deque by its index
-/// @returns pointer to deque item
-deque_item* deque_item_ptr_by_index(deque* self, int32_t index);
+/// Get the item from deque by index
+/// @returns item ptr
+deque_item* deque_get_by_index(deque* self, int32_t index);
+
+/// Get the item from deque by index and put to the destination
+/// @returns true if the operation is successful
+bool deque_copy_by_index(deque* self, int32_t index, deque_item* destination);
+
+/// Change the item in deque by its index using the value from source
+/// @returns true if the operation is successful
+bool deque_set_by_index(deque* self, int32_t index, deque_item* source);
 
 /// Checks if some value can be pushed into the deque.
 /// @returns true if value can be pushed.

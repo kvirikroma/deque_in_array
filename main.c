@@ -23,12 +23,12 @@ int main()
     {
         deque_push_right(&data, (deque_item*)i);
     }
-    *(float*)deque_item_ptr_by_index(&data, -234233) = 987.765;
+    *(float*)deque_get_by_index(&data, -234233) = 987.765;
     int items_count = deque_get_count(&data);
     for (i[0] = 0; i[0] < deque_get_count(&data); i[0]++)
     {
-        printf("%d\n", *(int*)deque_item_ptr_by_index(&data, i[0]));
-        (*(int*)deque_item_ptr_by_index(&data, i[0]))++;
+        printf("%d\n", *(int*)deque_get_by_index(&data, i[0]));
+        (*(int*)deque_get_by_index(&data, i[0]))++;
     }
     int item_size = deque_get_item_size(&data);
     deque_iterate(&data, print_int_item, &item_size);

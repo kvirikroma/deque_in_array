@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define DEQUE_DEFAULT_INIT_SIZE 8  // items
+#define DEQUE_DEFAULT_INIT_SIZE 8  // items, not bytes
 #define MAXIMUM_FREE_SPACE_PERCENT 75  // must be more than 50 and less than 100 (not equal!)
 #define MINIMAL_SPACE DEQUE_DEFAULT_INIT_SIZE
 
@@ -16,11 +16,8 @@ typedef struct
 }
 deque_item;
 
-typedef union __attribute__((__packed__))
-{
-    uint8_t _;
-}
-byte;  // only size matters for this type, not the sign
+// only size matters for this type, not the sign or value
+typedef uint8_t byte;
 
 // This structure uses an Opizdulation principle.
 // This means that you should be punched in a face (by the author, probably) if you access its fields directly outside the 'deque.c'.
@@ -90,6 +87,9 @@ bool deque_can_pop(const deque* self);
 /// @returns count of items in the deque (in O(1))
 uint32_t deque_get_count(const deque* self);
 
+/// Checks if the deque is empty
+bool deque_is_empty(deque* self);
+
 /// @returns real size of storage
 uint32_t deque_get_storage_size(const deque* self);
 
@@ -105,6 +105,14 @@ void deque_iterate(deque* self, void(*item_receiver)(deque_item* item, void* par
 
 /// Clears the deque (in O(1))
 void deque_clear(deque* self);
+
+/// Remove given number of items from the left side of a deque.
+/// If deque has less items then given - it will be cleared.
+void deque_delete_from_left(deque* self, uint32_t count);
+
+/// Remove given number of items from the right side of a deque.
+/// If deque has less items then given - it will be cleared.
+void deque_delete_from_right(deque* self, uint32_t count);
 
 
 #endif

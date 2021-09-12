@@ -226,6 +226,32 @@ bool deque_pop_right(deque* self, deque_item* destination)
     return true;
 }
 
+void deque_delete_from_left(deque* self, uint32_t count)
+{
+    if (deque_get_count(self) <= count)
+    {
+        deque_clear(self);
+    }
+    else
+    {
+        self->first_item = access_storage_by_address(self, self->first_item + (self->item_size * count));
+        shrink_storage(self);
+    }
+}
+
+void deque_delete_from_right(deque* self, uint32_t count)
+{
+    if (deque_get_count(self) <= count)
+    {
+        deque_clear(self);
+    }
+    else
+    {
+        self->last_item = access_storage_by_address(self, self->last_item - (self->item_size * count));
+        shrink_storage(self);
+    }
+}
+
 static bool normalize_index(deque* self, int32_t* index)
 {
     int32_t items_count = (int32_t)deque_get_count(self);
@@ -234,7 +260,7 @@ static bool normalize_index(deque* self, int32_t* index)
         return false;
     }
     *index %= items_count;
-    *index += items_count * (index < 0);
+    *index += items_count * (*index < 0);
     return true;
 }
 
@@ -244,6 +270,7 @@ bool deque_copy_by_index(deque* self, int32_t index, deque_item* destination)
     {
         return false;
     }
+    index += self->first_item - self->storage;
     memcpy(destination, access_storage_by_index(self, index), self->item_size);
     return true;
 }
@@ -254,6 +281,7 @@ deque_item* deque_get_by_index(deque* self, int32_t index)
     {
         return false;
     }
+    index += self->first_item - self->storage;
     return access_storage_by_index(self, index);
 }
 
@@ -263,6 +291,7 @@ bool deque_set_by_index(deque* self, int32_t index, deque_item* source)
     {
         return false;
     }
+    index += self->first_item - self->storage;
     memcpy(access_storage_by_index(self, index), source, self->item_size);
     return true;
 }
@@ -296,6 +325,11 @@ uint32_t deque_get_count(const deque* self)
     result += self->storage_size * (result < 0);
     result++;
     return result;
+}
+
+bool deque_is_empty(deque* self)
+{
+	return !self->first_item || !self->last_item;
 }
 
 uint32_t deque_get_storage_size(const deque* self)

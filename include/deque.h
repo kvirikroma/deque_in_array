@@ -24,9 +24,9 @@ typedef uint8_t byte;
 // Use fucking functions for it!
 typedef struct
 {
-    byte* storage;
-    byte* first_item;
-    byte* last_item;
+    int8_t* storage;
+    int8_t* first_item;
+    int8_t* last_item;
     uint32_t storage_size;  // items count
     uint32_t item_size;
     bool storage_is_dynamic;

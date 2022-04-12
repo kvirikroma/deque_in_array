@@ -11,23 +11,23 @@ static deque_item* access_storage_by_index(deque* self, int32_t index)
     return (deque_item*)(self->item_size * index + self->storage);
 }
 
-static byte* access_storage_by_address(deque* self, byte* address)
+static int8_t* access_storage_by_address(deque* self, int8_t* address)
 {
     int32_t index = (address - self->storage) / self->item_size;
-    return (byte*)(access_storage_by_index(self, index));
+    return (int8_t*)(access_storage_by_index(self, index));
 }
 
 static void increase_storage_capacity(deque* self)
 {
     self->storage_size <<= 1;  // *= 2
-    byte* old_storage_ptr = self->storage;
+    int8_t* old_storage_ptr = self->storage;
     self->storage = realloc(self->storage, self->storage_size * self->item_size);
     self->first_item += self->storage - old_storage_ptr;
     self->last_item += self->storage - old_storage_ptr;
     if (self->first_item > self->last_item)
     {
         uint32_t bytes_to_move = (self->storage_size >> 1) * self->item_size - (self->first_item - self->storage);
-        byte* new_start = self->storage + (self->item_size * self->storage_size) - bytes_to_move;
+        int8_t* new_start = self->storage + (self->item_size * self->storage_size) - bytes_to_move;
         memmove(
             new_start,
             self->first_item,
@@ -49,7 +49,10 @@ static void shrink_storage(deque* self)
     if (
         (!self->storage_is_dynamic) ||
         (self->storage_size <= MINIMAL_SPACE) ||
-        ((((self->storage_size - deque_get_count(self)) * 100) / self->storage_size) <= MAXIMUM_FREE_SPACE_PERCENT)
+        (
+            (((self->storage_size - deque_get_count(self)) * 100) / self->storage_size) <= 
+            MAXIMUM_FREE_SPACE_PERCENT
+        )
     )
     {
         return;
@@ -58,8 +61,10 @@ static void shrink_storage(deque* self)
     {
         if (self->first_item > self->last_item)
         {
-            uint32_t bytes_to_move = self->storage_size * self->item_size - (self->first_item - self->storage);
-            byte* new_place = self->storage + ((self->storage_size >> 1) * self->item_size) - bytes_to_move;
+            uint32_t bytes_to_move =
+                self->storage_size * self->item_size - (self->first_item - self->storage);
+            int8_t* new_place =
+                self->storage + ((self->storage_size >> 1) * self->item_size) - bytes_to_move;
             memmove(
                 new_place,
                 self->first_item,
@@ -84,7 +89,7 @@ static void shrink_storage(deque* self)
         }
     }
     self->storage_size >>= 1;  // /= 2
-    byte* old_storage_ptr = self->storage;
+    int8_t* old_storage_ptr = self->storage;
     self->storage = realloc(self->storage, self->storage_size * self->item_size);
     self->first_item += self->storage - old_storage_ptr;
     self->last_item += self->storage - old_storage_ptr;
@@ -184,7 +189,7 @@ bool deque_pop_left(deque* self, deque_item* destination)
     {
         return false;
     }
-    byte* result = access_storage_by_address(self, self->first_item);
+    int8_t* result = access_storage_by_address(self, self->first_item);
     if (self->last_item == self->first_item)
     {
         self->last_item = NULL;
@@ -208,7 +213,7 @@ bool deque_pop_right(deque* self, deque_item* destination)
     {
         return false;
     }
-    byte* result = access_storage_by_address(self, self->last_item);
+    int8_t* result = access_storage_by_address(self, self->last_item);
     if (self->last_item == self->first_item)
     {
         self->last_item = NULL;
@@ -234,7 +239,9 @@ void deque_delete_from_left(deque* self, uint32_t count)
     }
     else
     {
-        self->first_item = access_storage_by_address(self, self->first_item + (self->item_size * count));
+        self->first_item = access_storage_by_address(
+            self, self->first_item + (self->item_size * count)
+            );
         shrink_storage(self);
     }
 }
@@ -247,7 +254,9 @@ void deque_delete_from_right(deque* self, uint32_t count)
     }
     else
     {
-        self->last_item = access_storage_by_address(self, self->last_item - (self->item_size * count));
+        self->last_item = access_storage_by_address(
+            self, self->last_item - (self->item_size * count)
+            );
         shrink_storage(self);
     }
 }
@@ -302,7 +311,10 @@ bool deque_can_push(deque* self)
     {
         return true;
     }
-    if ((access_storage_by_address(self, self->last_item + self->item_size) == self->first_item) && (!self->storage_is_dynamic))
+    if (
+        (access_storage_by_address(self, self->last_item + self->item_size) == self->first_item) &&
+        (!self->storage_is_dynamic)
+    )
     {
         return false;
     }

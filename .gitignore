@@ -1,5 +1,11 @@
-deque
 *.o
+*.gch
 .vscode
 .kdbg*
 vgcore.*
+build
+CMakeCache.txt
+Makefile
+CMakeFiles/
+cmake_install.cmake
+deque

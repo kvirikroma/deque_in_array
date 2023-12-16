@@ -114,5 +114,13 @@ void deque_delete_from_left(deque* self, uint32_t count);
 /// If deque has less items then given - it will be cleared.
 void deque_delete_from_right(deque* self, uint32_t count);
 
+/// Check if the deque's first 'count' items are the same as the ones in the 'items' array
+/// In other words, this function returns true, if 'items' array is prefix of the 'self' deque
+bool deque_starts_with(deque* self, deque_item* items, uint32_t count);
+
+/// Check if the deque's last 'count' items are the same as the ones in the 'items' array
+/// In other words, this function returns true, if 'items' array is suffix of the 'self' deque
+bool deque_ends_with(deque* self, deque_item* items, uint32_t count);
+
 
 #endif

@@ -17,17 +17,24 @@ static int8_t* access_storage_by_address(deque* self, int8_t* address)
     return (int8_t*)(access_storage_by_index(self, index));
 }
 
-static void increase_storage_capacity(deque* self)
+static bool increase_storage_capacity(deque* self)
 {
-    self->storage_size <<= 1;  // *= 2
+    self->storage_size <<= 1;  // equivalent of *= 2
     int8_t* old_storage_ptr = self->storage;
-    self->storage = realloc(self->storage, self->storage_size * self->item_size);
-    self->first_item += self->storage - old_storage_ptr;
-    self->last_item += self->storage - old_storage_ptr;
+    int8_t* new_storage_ptr = realloc(self->storage, self->storage_size * self->item_size);
+    if (!new_storage_ptr)
+    {
+        return false;
+    }
+    self->storage = new_storage_ptr;
+    self->first_item += new_storage_ptr - old_storage_ptr;
+    self->last_item += new_storage_ptr - old_storage_ptr;
     if (self->first_item > self->last_item)
     {
-        uint32_t bytes_to_move = (self->storage_size >> 1) * self->item_size - (self->first_item - self->storage);
-        int8_t* new_start = self->storage + (self->item_size * self->storage_size) - bytes_to_move;
+        uint32_t bytes_to_move = (self->storage_size >> 1) * self->item_size -
+            (self->first_item - new_storage_ptr);
+        int8_t* new_start = new_storage_ptr + (self->item_size * self->storage_size) -
+            bytes_to_move;
         memmove(
             new_start,
             self->first_item,
@@ -35,6 +42,7 @@ static void increase_storage_capacity(deque* self)
         );
         self->first_item = new_start;
     }
+    return true;
 }
 
 static void deque_push_first_item(deque* self, deque_item* value)
@@ -77,7 +85,7 @@ static void shrink_storage(deque* self)
             // This part is a bit shitty 'cause I could just wrap right items around to start of the
             // self->storage when self->first_item placed in the left half of the storage,
             // but I don't care.
-            // Maybe will improve this in future
+            // Maybe I'll improve this in future (let's face the reality, most likely I won't)
             uint32_t deque_size = deque_get_count(self);
             memmove(
                 self->storage,
@@ -146,11 +154,7 @@ bool deque_push_left(deque* self, deque_item* value)
     }
     if (access_storage_by_address(self, self->first_item - self->item_size) == self->last_item)
     {
-        if (self->storage_is_dynamic)
-        {
-            increase_storage_capacity(self);
-        }
-        else
+        if (!self->storage_is_dynamic || !increase_storage_capacity(self))
         {
             return false;
         }
@@ -169,11 +173,7 @@ bool deque_push_right(deque* self, deque_item* value)
     }
     if (access_storage_by_address(self, self->last_item + self->item_size) == self->first_item)
     {
-        if (self->storage_is_dynamic)
-        {
-            increase_storage_capacity(self);
-        }
-        else
+        if (!self->storage_is_dynamic || !increase_storage_capacity(self))
         {
             return false;
         }
@@ -384,4 +384,44 @@ void deque_clear(deque* self)
         free(self->storage);
         self->storage = malloc(DEQUE_DEFAULT_INIT_SIZE * self->item_size);
     }
+}
+
+bool deque_ends_with(deque* self, deque_item* items, uint32_t count)
+{
+    if (count > deque_get_count(self))
+    {
+        return false;
+    }
+    for (uint32_t i = 1; i <= count; i++)
+    {
+        if (memcmp(
+            (uint8_t*)items + (self->item_size * (count - i)),
+            deque_get_by_index(self, i * -1),
+            self->item_size
+        ))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool deque_starts_with(deque* self, deque_item* items, uint32_t count)
+{
+    if (count > deque_get_count(self))
+    {
+        return false;
+    }
+    for (uint32_t i = 0; i < count; i++)
+    {
+        if (memcmp(
+            (uint8_t*)items + (self->item_size * i),
+            deque_get_by_index(self, i),
+            self->item_size
+        ))
+        {
+            return false;
+        }
+    }
+    return true;
 }

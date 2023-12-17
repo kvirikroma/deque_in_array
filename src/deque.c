@@ -199,11 +199,11 @@ bool deque_pop_left(deque* self, deque_item* destination)
     {
         self->first_item = access_storage_by_address(self, self->first_item + self->item_size);
     }
-    shrink_storage(self);
     if (destination)
     {
         memcpy(destination, result, self->item_size);
     }
+    shrink_storage(self);
     return true;
 }
 
@@ -223,11 +223,11 @@ bool deque_pop_right(deque* self, deque_item* destination)
     {
         self->last_item = access_storage_by_address(self, self->last_item - self->item_size);
     }
-    shrink_storage(self);
     if (destination)
     {
         memcpy(destination, result, self->item_size);
     }
+    shrink_storage(self);
     return true;
 }
 
@@ -349,7 +349,7 @@ uint32_t deque_get_storage_size(const deque* self)
     return self->storage_size;
 }
 
-bool deque_can_realloc(const deque* self)
+bool deque_storage_is_dynamic(const deque* self)
 {
     return self->storage_is_dynamic;
 }

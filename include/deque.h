@@ -16,12 +16,9 @@ typedef struct
 }
 deque_item;
 
-// only size matters for this type, not the sign or value
-typedef uint8_t byte;
-
 // This structure uses an Opizdulation principle.
-// This means that you should be punched in a face (by the author, probably) if you access its fields directly outside the 'deque.c'.
-// Use fucking functions for it!
+// This means that you should be punched in a face if you access its fields directly outside the 'deque.c'.
+// Use f**king functions for it!
 typedef struct
 {
     int8_t* storage;
@@ -37,7 +34,7 @@ deque;
 /// This function initializes the deque structure.
 /// @param storage is needed for ability to use statically allocated memory instead of malloc.
 /// It should be NULL if you want to use malloc instead (reallocates automatically).
-/// @param storage_size indicates max count of items and is only needed for those cases
+/// @param storage_size indicates max count of items (not bytes) and is only needed for those cases
 /// when storage is not NULL; otherwise it should also be NULL.
 void deque_init(deque* self, void* storage, uint32_t storage_size, uint32_t item_size);
 
@@ -77,10 +74,13 @@ bool deque_copy_by_index(deque* self, int32_t index, deque_item* destination);
 bool deque_set_by_index(deque* self, int32_t index, deque_item* source);
 
 /// Checks if some value can be pushed into the deque.
+/// The return value depends on the storage allocation method (static or dynamic)
+/// and, if the storage is static, the function checks for free space in it.
+/// The 'true' value does not guarantee successful push action in case the storage is dynamic!
 /// @returns true if value can be pushed.
 bool deque_can_push(deque* self);
 
-/// Checks if some value can be popped from the deque.
+/// Checks if there is at least one value in the deque.
 /// @returns true if value can be popped.
 bool deque_can_pop(const deque* self);
 
@@ -94,7 +94,7 @@ bool deque_is_empty(deque* self);
 uint32_t deque_get_storage_size(const deque* self);
 
 /// @returns true if the internal storage was allocated in heap
-bool deque_can_realloc(const deque* self);
+bool deque_storage_is_dynamic(const deque* self);
 
 /// @returns size of each item
 uint32_t deque_get_item_size(const deque* self);
